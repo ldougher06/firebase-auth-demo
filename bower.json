@@ -1,0 +1,9 @@
+{
+  "name": "firebase-auth-demo",
+  "version": "1.0.0",
+  "homepage": "https://github.com/ldougher06/firebase-auth-demo",
+  "authors": [
+    "logan dougher <logan.dougher@gmail.com>"
+  ],
+  "license": "MIT"
+}
