@@ -28,7 +28,7 @@ cp -r src public
 
 # concat bower_components to public/lib directory
 if [ -d "bower_components" ]; then
-  ./node_modules/.bin/bowcat . -o public/lib -m
+  ./node_modules/.bin/bowcat . -o public/lib
 fi
 
 echo "clean"
@@ -39,6 +39,6 @@ rm -rf public/_styles \
        public/*.scss \
        public/**/*.scss
 
-echo "╔═══════════════════════════════════════════╗"
+echo "╔═══════���═══════════════════════════════════╗"
 echo "║          Watching for changes...          ║"
 echo "╚═══════════════════════════════════════════╝"

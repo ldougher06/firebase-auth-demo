@@ -5,5 +5,15 @@
   "authors": [
     "logan dougher <logan.dougher@gmail.com>"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "firebase": "~2.2.4"
+  }
 }

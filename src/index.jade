@@ -1,0 +1,23 @@
+extends ./_layout
+
+.onLoggedOut
+  .login
+    h1 Login
+    form
+      input(type="email" placeholder="email" required)
+      input(type="password" placeholder="password" required)
+      input.toRegisterBtn(type="button", value="Register")
+      input(type="submit" value="Login")
+  .register.hidden
+    h1 Register
+    form
+      input(type="email" placeholder="email" required)
+      input(type="password" placeholder="password" required)
+      input(type="password" placeholder="password again" required)
+      input.toLoginBtn(type="button" value="Back")
+      input(type="submit" value="Register")
+.onLoggedIn
+  h1 Hello
+  button.doLogout Logout
+
+  a(href="/login") Login
