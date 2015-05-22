@@ -1,5 +1,22 @@
 var FIREBASE_URL = 'https://c9-demo.firebaseio.com';
 var fb = new Firebase(FIREBASE_URL);
+var initLoad = true;
+
+$('.onLoggedIn form').submit(function () {
+  var url = $('.onLoggedIn input[type="url"]').val();
+  var uid = fb.getAuth().uid;
+  var token = fb.getAuth().token;
+  var postUrl = `${FIREBASE_URL}/users/${uid}/fotos.json?auth=${token}`;
+
+
+  $.post(postUrl, JSON.stringify(url), function (res) {
+    addPhotosToDom({url: url});
+    clearForms();
+    // res = { name: '-Jk4dfDd123' }
+  });
+
+  event.preventDefault();
+})
 
 $('.onTempPassword form').submit(function () {
   var email = fb.getAuth().password.email;
@@ -36,7 +53,9 @@ $('.doResetPassword').click(function () {
 });
 
 $('.doLogout').click(function () {
-  fb.unauth();
+  fb.unauth(function () {
+    window.location.reload();
+  });
 })
 
 $('.doRegister').click(function () {
@@ -50,7 +69,10 @@ $('.doRegister').click(function () {
     if (err) {
       alert(err.toString());
     } else {
-      doLogin(email, password);
+      clearForms();
+      doLogin(email, password, function () {
+        window.location.reload();
+      });
     }
   });
 
@@ -61,19 +83,20 @@ $('.onLoggedOut form').submit(function () {
   var email = $('.onLoggedOut input[type="email"]').val();
   var password = $('.onLoggedOut input[type="password"]').val();
 
-  doLogin(email, password);
+  doLogin(email, password, function () {
+    window.location.reload();
+  });
   event.preventDefault();
 });
 
-function clearLoginForm () {
-  $('input[type="email"]').val('');
-  $('input[type="password"]').val('');
+function clearForms () {
+  $('input[type="text"], input[type="url"]').val('');
 }
 
 function saveAuthData (authData) {
   $.ajax({
     method: 'PUT',
-    url: `${FIREBASE_URL}/users/${authData.uid}/profile.json`,
+    url: `${FIREBASE_URL}/users/${authData.uid}/profile.json?auth=${authData.token}`,
     data: JSON.stringify(authData)
   });
 }
@@ -92,25 +115,48 @@ function doLogin (email, password, cb) {
   });
 }
 
-fb.onAuth(function (authData) {
-  var onLoggedOut = $('.onLoggedOut');
-  var onLoggedIn = $('.onLoggedIn');
-  var onTempPassword = $('.onTempPassword');
+function getUserData (cb) {
+  var uid = fb.getAuth().uid;
+  var token = fb.getAuth().token;
+  var getUrl = `${FIREBASE_URL}/users/${uid}/fotos.json?auth=${token}`;
+  $.get(getUrl, cb);
+}
 
-  if (authData && authData.password.isTemporaryPassword) {
-    onTempPassword.removeClass('hidden');
-    onLoggedIn.addClass('hidden');
-    onLoggedOut.addClass('hidden');
-  } else if (authData) {
-    onLoggedIn.removeClass('hidden');
-    onLoggedOut.addClass('hidden');
-    onTempPassword.addClass('hidden');
-    $('.onLoggedIn h1').text(`Hello ${authData.password.email}`);
-  } else {
-    onLoggedOut.removeClass('hidden');
-    onLoggedIn.addClass('hidden');
-    onTempPassword.addClass('hidden');
+function addPhotosToDom (photos) {
+  if (photos) {
+    Object.keys(photos).forEach(function (uuid){
+      $(`<img src="${photos[uuid]}" data-uid="${uuid}">`).appendTo($('.favFotos'));
+    })
+  }
+}
+
+fb.onAuth(function (authData) {
+  if (initLoad) {
+    var onLoggedOut = $('.onLoggedOut');
+    var onLoggedIn = $('.onLoggedIn');
+    var onTempPassword = $('.onTempPassword');
+
+    if (authData && authData.password.isTemporaryPassword) {
+      // temporary log in
+      onTempPassword.removeClass('hidden');
+      onLoggedIn.addClass('hidden');
+      onLoggedOut.addClass('hidden');
+    } else if (authData) {
+      // logged in
+      onLoggedIn.removeClass('hidden');
+      onLoggedOut.addClass('hidden');
+      onTempPassword.addClass('hidden');
+      $('.onLoggedIn h1').text(`Hello ${authData.password.email}`);
+      getUserData(function (urls) {
+        addPhotosToDom(urls);
+      });
+    } else {
+      // on logged out
+      onLoggedOut.removeClass('hidden');
+      onLoggedIn.addClass('hidden');
+      onTempPassword.addClass('hidden');
+    }
   }
 
-  clearLoginForm();
+  initLoad = false;
 });

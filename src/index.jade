@@ -1,6 +1,6 @@
 extends ./_layout.jade
 block content
-  .onLoggedOut.hidden
+  .onLoggedOut
     h1 Login
     form
       input(type="email", placeholder="email", required)
@@ -14,6 +14,14 @@ block content
       input(type="password", placeholder="Current Password")
       input(type="password", placeholder="New Password")
       input(type="submit", value="Change Password")
-  .onLoggedIn
+  .onLoggedIn.hidden
     h1 Hello
     button.doLogout Logout
+    hr
+    h2 FavoFotos
+    form
+      input.url(type="url", placeholder="http://i.imgur.com/abc123")
+      input(type="submit", value="Add Foto")
+    hr
+    h2 Photos
+    .favFotos
