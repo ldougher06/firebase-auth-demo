@@ -1,19 +1,23 @@
 var FIREBASE_URL = 'https://c9-demo.firebaseio.com';
 var fb = new Firebase(FIREBASE_URL);
+var API_URL = 'http://www.omdbapi.com/?';
 var initLoad = true;
 
 $('.onLoggedIn form').submit(function () {
-  var url = $('.onLoggedIn input[type="url"]').val();
+  var title = $('.onLoggedIn input[type="text"]').val();
+  var url = API_URL + 't=' + title + '&r=json';
   var uid = fb.getAuth().uid;
   var token = fb.getAuth().token;
   var postUrl = `${FIREBASE_URL}/users/${uid}/fotos.json?auth=${token}`;
 
-
-  $.post(postUrl, JSON.stringify(url), function (res) {
-    addPhotosToDom({url: url});
+$.get(url, function(data){
+  //$.get only gets the data to the screen from the API. Then need another button to $.post to firebase.
+  $.post(postUrl, JSON.stringify(data), function (res) {
+    createMovieNode(data, res.Title);
     clearForms();
     // res = { name: '-Jk4dfDd123' }
-  });
+  })
+});
 
   event.preventDefault();
 })
@@ -122,13 +126,32 @@ function getUserData (cb) {
   $.get(getUrl, cb);
 }
 
-function addPhotosToDom (photos) {
-  if (photos) {
-    Object.keys(photos).forEach(function (uuid){
-      $(`<img src="${photos[uuid]}" data-uid="${uuid}">`).appendTo($('.favFotos'));
-    })
-  }
-}
+function createMovieNode (data, id) {
+  console.log(data);
+  console.log(id);
+  var html = "<div data-id=" + id + " class='movie'><div><img src=" + data.Poster + " alt='" + data.Title + "'></img></div>";
+  html += "<div>" + data.Title + "</div>";
+  html += "<div>" + data.Year + "</div>";
+  html += "<div>" + data.Genre + "</div>";
+  html += "<div>" + data.Director + "</div>";
+  html += "<div>" + data.Plot + "</div>";
+  html += "<div><div class='imdbLogo'>" + data.imdbRating + "</div>";
+  html += "<div>Metascore " + data.Metascore + "/100</div>";
+  $(html).prependTo('.favFotos');
+  //if (data) {
+    //Object.keys(data).forEach(function (id){
+    //$('<ul data-id=' + id +'><li>' + data.Poster + "</li></ul>").appendTo($('.favFotos'));
+    //$('<ul data-id=' + id +'><li>' + data.Title + "</li></ul>").appendTo($('.favFotos'));
+    //$('<ul data-id=' + id +'><li>' + data.Year+ "</li></ul>").appendTo($('.favFotos'));
+    //$('<ul data-id=' + id +'><li>' + data.Genre + "</li></ul>").appendTo($('.favFotos'));
+    //$('<ul data-id=' + id +'><li>' + data.Director + "</li></ul>").appendTo($('.favFotos'));
+    //$('<ul data-id=' + id +'><li>' + data.Plot + "</li></ul>").appendTo($('.favFotos'));
+    //$('<ul data-id=' + id +'><li>' + data.imdbRating + "</li></ul>").appendTo($('.favFotos'));
+    //$('<ul data-id=' + id +'><li>' + data.Metascore + "</li></ul>").appendTo($('.favFotos'));
+
+    };
+  //}
+//}
 
 fb.onAuth(function (authData) {
   if (initLoad) {
@@ -148,7 +171,7 @@ fb.onAuth(function (authData) {
       onTempPassword.addClass('hidden');
       $('.onLoggedIn h1').text(`Hello ${authData.password.email}`);
       getUserData(function (urls) {
-        addPhotosToDom(urls);
+        createMovieNode(urls);
       });
     } else {
       // on logged out

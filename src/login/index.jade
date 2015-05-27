@@ -18,10 +18,12 @@ block content
     h1 Hello
     button.doLogout Logout
     hr
-    h2 FavoFotos
+    h2 Search Flix
     form
-      input.url(type="url", placeholder="http://i.imgur.com/abc123")
-      input(type="submit", value="Add Foto")
+      input.url(type="text", placeholder="movie title")
+      input(type="submit", value="Add Movie")
     hr
-    h2 Photos
+    h2 Movies
     .favFotos
+      table
+        tr
